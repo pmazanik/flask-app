@@ -13,6 +13,10 @@ jobs:
       - setup_remote_docker:
           version: 20.10.24
       - run:
+          name: Install AWS CLI
+          command: |
+            sudo apt-get update && sudo apt-get install -y awscli
+      - run:
           name: Build Docker image
           command: |
             docker build -t $ECR_REPO_URI:latest ./flask-app
