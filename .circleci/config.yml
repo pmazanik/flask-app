@@ -1,0 +1,24 @@
+version: 2.1
+
+executors:
+  python-executor:
+    docker:
+      - image: cimg/python:3.11
+
+jobs:
+  build-and-test:
+    executor: python-executor
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            pip install -r flask-app/requirements.txt
+      - run:
+          name: Run unit tests (опционально)
+          command: echo "No tests yet"
+
+workflows:
+  build:
+    jobs:
+      - build-and-test

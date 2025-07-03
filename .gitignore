@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.env
+.env/
+.env.*
+
+# VSCode & IDEs
+.vscode/
+.idea/
+*.swp
+
+# Docker
+*.log
+docker-compose.override.yml
+
+# Node/npm (если вдруг что-то будет)
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test/output
+.coverage
+htmlcov/
+dist/
+build/
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+terraform.tfvars  # если содержит чувствительные данные
+crash.log
+*.tfplan
+
+# AWS CLI credentials (никогда не клади в git!)
+.aws/
+
+# CircleCI (!!! только если ты не хочешь хранить что-то секретное, а config.yml ДОЛЖЕН быть в гите)
+# НЕ игнорируй .circleci/ — этот каталог должен быть закоммичен!
+
+# Custom secrets
+secrets.*
