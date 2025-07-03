@@ -1,24 +1,54 @@
 version: 2.1
 
 executors:
-  python-executor:
+  docker-publisher:
     docker:
       - image: cimg/python:3.11
 
 jobs:
-  build-and-test:
-    executor: python-executor
+  build-and-push:
+    executor: docker-publisher
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.24
+      - run:
+          name: Build Docker image
+          command: |
+            docker build -t $ECR_REPO_URI:latest ./flask-app
+      - run:
+          name: Authenticate to ECR
+          command: |
+            aws --version
+            aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPO_URI
+      - run:
+          name: Push Docker image
+          command: |
+            docker push $ECR_REPO_URI:latest
+
+  deploy-to-eks:
+    docker:
+      - image: cimg/python:3.11
     steps:
       - checkout
       - run:
-          name: Install dependencies
+          name: Install kubectl & awscli
           command: |
-            pip install -r flask-app/requirements.txt
+            sudo apt-get update && sudo apt-get install -y kubectl awscli
       - run:
-          name: Run unit tests (опционально)
-          command: echo "No tests yet"
+          name: Update kubeconfig
+          command: |
+            aws eks update-kubeconfig --region $AWS_DEFAULT_REGION --name $EKS_CLUSTER_NAME
+      - run:
+          name: Deploy manifests
+          command: |
+            kubectl apply -f k8s-manifests/deployment.yaml
+            kubectl apply -f k8s-manifests/service.yaml
 
 workflows:
-  build:
+  build-deploy:
     jobs:
-      - build-and-test
+      - build-and-push
+      - deploy-to-eks:
+          requires:
+            - build-and-push
