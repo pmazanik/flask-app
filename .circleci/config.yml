@@ -51,16 +51,58 @@ jobs:
           name: Update kubeconfig
           command: |
             aws eks update-kubeconfig --region $AWS_DEFAULT_REGION --name $EKS_CLUSTER_NAME
+      # Запускается разово
+      # - run:
+      #     name: Install monitoring stack
+      #     command: |
+      #       helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+      #       helm repo update
+      #       helm install prometheus prometheus-community/kube-prometheus-stack --namespace monitoring --create-namespace
       - run:
           name: Deploy manifests
           command: |
             kubectl apply -f k8s-manifests/deployment.yaml
             kubectl apply -f k8s-manifests/service.yaml
+            kubectl apply -f k8s-manifests/ingress.yaml
+            kubectl apply -f k8s-manifests/hpa.yaml
+            kubectl apply -f k8s-manifests/prometheus-rules.yaml
+            kubectl apply -f k8s-manifests/servicemonitor.yaml
+  setup-monitoring:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - checkout
+      - run:
+          name: Install kubectl, awscli, Helm
+          command: |
+            sudo apt-get update && sudo apt-get install -y unzip
+            curl -LO "https://dl.k8s.io/release/v1.32.2/bin/linux/amd64/kubectl"
+            sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+            curl -sSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+      - run:
+          name: Setup kubeconfig
+          command: |
+            aws eks update-kubeconfig --region $AWS_DEFAULT_REGION --name $EKS_CLUSTER_NAME
+      - run:
+          name: Install Prometheus & Grafana (with external access)
+          command: |
+            helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+            helm repo update
+            helm install prometheus prometheus-community/kube-prometheus-stack --namespace monitoring --create-namespace --set grafana.service.type=LoadBalancer
 
 workflows:
+  version: 2
   build-deploy:
     jobs:
       - build-and-push
       - deploy-to-eks:
           requires:
             - build-and-push
+
+  monitoring-pipeline:
+    jobs:
+      - setup-monitoring
+
