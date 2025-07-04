@@ -65,7 +65,7 @@ jobs:
             kubectl apply -f k8s-manifests/service.yaml
             kubectl apply -f k8s-manifests/ingress.yaml
             kubectl apply -f k8s-manifests/hpa.yaml
-            # kubectl apply -f k8s-manifests/prometheus-rules.yaml
+            kubectl apply -f k8s-manifests/prometheus-rules.yaml
             # kubectl apply -f k8s-manifests/servicemonitor.yaml
   setup-monitoring:
     docker:
