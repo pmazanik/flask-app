@@ -79,4 +79,5 @@ module "eks" {
 resource "aws_ecr_repository" "flask_app" {
     name = "flask-app"
     image_tag_mutability = "MUTABLE"
+    force_delete = true
 }
