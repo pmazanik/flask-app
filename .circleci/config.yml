@@ -87,11 +87,13 @@ jobs:
           command: |
             aws eks update-kubeconfig --region $AWS_DEFAULT_REGION --name $EKS_CLUSTER_NAME
       - run:
-          name: Install Prometheus & Grafana (with external access)
+          name: Install/upgrade Prometheus & Grafana (with external access)
           command: |
             helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
             helm repo update
-            helm install prometheus prometheus-community/kube-prometheus-stack --namespace monitoring --create-namespace --set grafana.service.type=LoadBalancer
+            helm upgrade --install prometheus prometheus-community/kube-prometheus-stack \
+              --namespace monitoring --create-namespace \
+              --set grafana.service.type=LoadBalancer
 
   hold-for-manual-approval:
     type: approval
