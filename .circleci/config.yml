@@ -65,8 +65,8 @@ jobs:
             kubectl apply -f k8s-manifests/service.yaml
             kubectl apply -f k8s-manifests/ingress.yaml
             kubectl apply -f k8s-manifests/hpa.yaml
-            kubectl apply -f k8s-manifests/prometheus-rules.yaml
-            kubectl apply -f k8s-manifests/servicemonitor.yaml
+            # kubectl apply -f k8s-manifests/prometheus-rules.yaml
+            # kubectl apply -f k8s-manifests/servicemonitor.yaml
   setup-monitoring:
     docker:
       - image: cimg/python:3.11
@@ -95,7 +95,7 @@ jobs:
 
   hold-for-manual-approval:
     type: approval
-    
+
 workflows:
   version: 2
   build-deploy:
