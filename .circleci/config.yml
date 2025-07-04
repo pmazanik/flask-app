@@ -93,6 +93,9 @@ jobs:
             helm repo update
             helm install prometheus prometheus-community/kube-prometheus-stack --namespace monitoring --create-namespace --set grafana.service.type=LoadBalancer
 
+  hold-for-manual-approval:
+    type: approval
+    
 workflows:
   version: 2
   build-deploy:
@@ -104,5 +107,8 @@ workflows:
 
   monitoring-pipeline:
     jobs:
-      - setup-monitoring
+      - hold-for-manual-approval
+      - setup-monitoring:
+          requires:
+            - hold-for-manual-approval
 
